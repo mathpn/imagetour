@@ -1,61 +1,39 @@
-import os
+import argparse
 
-import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision.datasets import Flowers102
-from torchvision.models import resnet18, ResNet18_Weights
-from torchvision import transforms
-from torchvision.utils import save_image
+from timm.models.vision_transformer import vit_base_patch32_clip_384
+
+from dataset import CelebA
 
 
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-])
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", type=int, default=3200, help="number of images to process")
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--data-folder", type=str, default="./images/celeba")
+    args = parser.parse_args()
 
-dataset = Flowers102("./data", download=True, transform=transform)
-print(dataset)
+    device = torch.device("cuda") if torch.cuda.is_available else torch.device("cpu")
+    dataset = CelebA(args.data_folder, device, 384)
+    model = vit_base_patch32_clip_384(pretrained=True)
+    model.head = nn.Identity()
+    model = model.to(device)
 
-model = resnet18(ResNet18_Weights.DEFAULT)
-# model.fc = nn.Linear(512, 10)
-model.fc = nn.Identity()
-device = torch.device('cuda')
-model = model.to(device)
-print(model)
-
-data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
-# criterion = nn.CrossEntropyLoss()
-# optim = torch.optim.Adam(model.parameters())
-
-# for epoch in range(1):
-#     print(epoch)
-#     for imgs, labels in data_loader:
-#         optim.zero_grad()
-#         imgs = imgs.to(device).expand(-1, 3, -1, -1)
-#         labels = labels.to(device)
-#         out = model(imgs)
-#         loss = criterion(out, labels)
-#         loss.backward()
-#         optim.step()
+    data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
+    limit = args.limit // args.batch_size
+    with open("./embeddings.txt", "w") as emb_file:
+        with torch.no_grad():
+            for i, batch in enumerate(data_loader):
+                if i >= limit:
+                    break
+                imgs, files = batch
+                feats = model(imgs).detach().cpu().numpy()
+                for j, file in enumerate(files):
+                    array_string = " ".join(f"{x:.4f}" for x in feats[j])
+                    emb_file.write(f"{file} {array_string}\n")
 
 
-# model.fc = nn.Identity()
-
-os.makedirs("./images", exist_ok=True)
-all_feats = []
-with open("./embeddings.txt", "w") as emb_file:
-    with torch.no_grad():
-        for i, batch in enumerate(data_loader):
-            imgs, labels = batch
-            imgs = imgs.to(device)
-            # imgs = imgs.expand(-1, 3, -1, -1)
-            feats = model(imgs).detach().cpu().numpy()
-            for j in range(len(imgs)):
-                img = imgs[j]
-                img_id = i * 32 + j
-                save_image(img, f"./images/img_{img_id}.jpg")
-                array_string = ' '.join(f"{x:.4f}" for x in feats[j])
-                emb_file.write(f"img_{img_id} {array_string}\n")
-
+if __name__ == "__main__":
+    main()
