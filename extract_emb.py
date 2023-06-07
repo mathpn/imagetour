@@ -26,6 +26,7 @@ def main():
     with open("./embeddings.txt", "w") as emb_file:
         with torch.no_grad():
             for i, batch in enumerate(data_loader):
+                print(f"extracting batch {i+1}/{limit}")
                 if i >= limit:
                     break
                 imgs, files = batch
