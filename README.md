@@ -6,7 +6,7 @@ Here, I apply the same concept (and much of the same code, go check the original
 
 # Sample images
 
-[sample images](https://github.com/mathpn/imagetour/raw/main/assets/example.png?raw=true)
+![sample images](https://github.com/mathpn/imagetour/raw/main/assets/example.png?raw=true)
 
 This image shows segments from 1D embeddings obtained using the travelling salesman approach or a single-component PCA. It can be quite subjective, but the TSP approach does seem to produce somewhat better segments. Both 1D embeddings could be potentially improved finetuning the network to our data.
 
