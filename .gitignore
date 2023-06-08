@@ -3,3 +3,6 @@ __pycache__
 data/
 images/
 LKH-3.0.8/
+*.txt
+*.html
+*.zip

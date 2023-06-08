@@ -1,9 +1,9 @@
 import argparse
 
 import torch
+from timm.models.vision_transformer import vit_base_patch32_clip_384
 from torch import nn
 from torch.utils.data import DataLoader
-from timm.models.vision_transformer import vit_base_patch32_clip_384
 
 from dataset import CelebA
 
@@ -26,9 +26,9 @@ def main():
     with open("./embeddings.txt", "w") as emb_file:
         with torch.no_grad():
             for i, batch in enumerate(data_loader):
-                print(f"extracting batch {i+1}/{limit}")
                 if i >= limit:
                     break
+                print(f"extracting batch {i+1}/{limit}")
                 imgs, files = batch
                 feats = model(imgs).detach().cpu().numpy()
                 for j, file in enumerate(files):

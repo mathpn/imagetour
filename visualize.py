@@ -1,11 +1,11 @@
 import argparse
 import random
 
-import numpy as np
-from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1.axes_grid import ImageGrid
 from PIL import Image
+from sklearn.decomposition import PCA
 
 
 def save_html(idx: list[int], files: list[str]):
@@ -27,17 +27,22 @@ def save_comparison(emb, tsp_order: list[int], files: list[str], n_samples: int,
         pca_segment = pca_order[pca_idx : pca_idx + n_neighbors + 1]
         tsp_idx = tsp_order.index(sample)
         tsp_segment = tsp_order[tsp_idx : tsp_idx + n_neighbors + 1]
-        print(f"{pca_segment = }")
-        print(f"{tsp_segment = }")
-        for segment in (tsp_segment, pca_segment):
-            for idx in segment:
+        for segment, name in ((tsp_segment, "TSP"), (pca_segment, "PCA")):
+            for j, idx in enumerate(segment):
+                ax = grid[i]
+                if j == 0:
+                    ax.set_ylabel(name, size="large")
                 file = files[idx]
                 img = Image.open(file)
-                ax = grid[i]
                 ax.imshow(img)
                 i += 1
-    plt.show()
-    # TODO continue
+                ax.set_yticklabels([])
+                ax.set_xticklabels([])
+                ax.set_xticks([])
+                ax.set_yticks([])
+    plt.tight_layout()
+    plt.savefig("./img_samples.png")
+    print("saved image to ./img_samples.png")
 
 
 def main():
