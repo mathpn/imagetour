@@ -4,6 +4,11 @@ This is heavily inspired by [wordtour](https://github.com/joisino/wordtour), whi
 
 Here, I apply the same concept (and much of the same code, go check the original repo) to CelebA images using a vision transformer model to extract high-dimensional embeddings.
 
+# Sample images
+
+
+This image shows segments from 1D embeddings obtained using the travelling salesman approach or a single-component PCA. It can be quite subjective, but the TSP approach does seem to produce somewhat better segments. Both 1D embeddings could be potentially improved finetuning the network to our data.
+
 # How to run it
 
 ## Download the images
@@ -33,8 +38,18 @@ make
 bash solve_tsp.sh ./embeddings.txt
 ```
 
-5. Generate HTML with the entire one-dimensional embedding space
+5. Visualize the embedding space
+
+You can visualize the 1D embedding space using an HTML file or a PNG image with some samples.
+
+- Generating the HTML file:
 
 ```bash
-# TODO continue
+python visualize.py --html
+```
+
+- Generating a PNG with sample images (also compares with 1D-embeddings using PCA)
+
+```bash
+python visualize.py
 ```
